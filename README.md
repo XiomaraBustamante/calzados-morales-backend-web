@@ -1,4 +1,4 @@
-# 👠 Calzados Morales - v1.0
+# 👠 Calzados Morales - DESARROLLO DE APLICACIONES WEB I
 > **Solución integral para la gestión retail de calzado, optimizando el ciclo de inventario y ventas.**
 
 [![Java Version](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
