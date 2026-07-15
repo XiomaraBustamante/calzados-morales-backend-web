@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar Clientes | Calzados Morales</title>
+    <link rel="stylesheet" th:href="@{/assets/vendors/mdi/css/materialdesignicons.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/vendors/css/vendor.bundle.base.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+    <link rel="shortcut icon" th:href="@{/assets/images/favicon.png}" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+    
+    <style>
+        :root {
+            --purple-primary: #b66dff;
+            --success-green: #1cc88a;
+            --warning-orange: #f6c23e;
+            --danger-red: #e74a3b;
+            --border-color: #ebedf2;
+        }
+
+        /* 1. AJUSTE DE BUSCADOR (DERECHA) Y MOSTRAR (IZQUIERDA) */
+        .dataTables_wrapper .row:first-child {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px !important;
+            padding: 0 5px;
+        }
+
+        .dataTables_length { float: left !important; }
+        .dataTables_filter { text-align: right !important; float: right !important; }
+
+        .dataTables_length label, .dataTables_filter label {
+            font-weight: normal;
+            color: #343a40;
+            font-size: 0.875rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Inputs rectangulares simples */
+        .dataTables_filter input {
+            border: 1px solid #ebedf2 !important;
+            border-radius: 4px !important;
+            padding: 6px 12px !important;
+            margin-left: 10px !important;
+            width: 210px !important;
+        }
+
+        .dataTables_length select {
+            border: 1px solid #ebedf2 !important;
+            border-radius: 4px !important;
+            padding: 4px 8px !important;
+            margin: 0 10px !important;
+        }
+
+        /* 2. AJUSTE DE PAGINACIÓN MORADA */
+        .dataTables_info {
+            font-size: 0.875rem;
+            color: #343a40;
+            padding-top: 15px !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            margin-top: 20px !important;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .pagination { display: flex; gap: 2px; list-style: none; }
+
+        .page-item .page-link {
+            padding: 8px 16px !important;
+            color: #b66dff !important;
+            background-color: #f3f0ff !important;
+            border: none !important;
+            font-weight: 500;
+            border-radius: 4px !important;
+        }
+
+        /* Resaltado del número 1 */
+        .page-item.active .page-link {
+            background-color: #b66dff !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .page-item.disabled .page-link {
+            background-color: #f8f9fa !important;
+            opacity: 0.6;
+        }
+
+        /* ESTILOS DE TABLA (MANTENIDOS) */
+        #tablaRecuperar { border-collapse: separate !important; border-spacing: 0 12px !important; }
+        #tablaRecuperar thead th { border: none; color: #3e4b5b; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; padding: 15px; background-color: #f8f9fa; }
+        #tablaRecuperar tbody tr { background-color: #ffffff; transition: all 0.2s ease-in-out; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        #tablaRecuperar td { border: none !important; padding: 15px 15px !important; vertical-align: middle; }
+        .dias-badge { font-weight: 800; font-size: 1.1rem; }
+        .alerta-media { color: var(--warning-orange); }
+        .alerta-critica { color: var(--danger-red); }
+        .btn-whatsapp { background-color: #25d366; color: white; border-radius: 8px; padding: 8px 12px; font-weight: bold; border: none; }
+        .linea-visible { border-top: 1px solid #ebedf2; margin: 1.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="container-scroller">
+        <nav th:replace="~{fragmentos/navbar :: navbar}"></nav>
+        <div class="container-fluid page-body-wrapper">
+            <nav th:replace="~{fragmentos/sidebar :: sidebar}"></nav>
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h3 class="page-title">
+                            <span class="page-title-icon bg-gradient-warning text-white me-2">
+                                <i class="mdi mdi-account-convert"></i>
+                            </span> Recuperación de Clientes
+                        </h3>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 grid-margin stretch-card">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <h4 class="card-title text-primary mb-0">Lista de Seguimiento</h4>
+                                    <hr class="linea-visible">
+
+                                    <div class="table-responsive">
+                                        <table class="table" id="tablaRecuperar" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cliente</th>
+                                                    <th>Teléfono</th>
+                                                    <th class="text-center">Última Compra</th>
+                                                    <th class="text-center">Días Ausente</th>
+                                                    <th class="text-center">Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="v : ${listaClientes}">
+                                                    <td class="align-middle">
+                                                        <div class="font-weight-bold text-dark" th:text="${v[0]}"></div>
+                                                        <small class="text-muted">Cliente Morales</small>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <i class="mdi mdi-phone-classic text-primary me-1"></i>
+                                                        <span th:text="${v[1]}"></span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <span class="badge badge-outline-secondary" th:text="${v[2]}"></span>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <div th:class="${v[3] > 60 ? 'dias-badge alerta-critica' : 'dias-badge alerta-media'}">
+                                                            <span th:text="${v[3]}"></span> <small>días</small>
+                                                        </div>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <a th:href="'https://wa.me/51' + ${v[1]}" target="_blank" class="btn btn-whatsapp btn-sm">
+                                                            <i class="mdi mdi-whatsapp me-1"></i> WhatsApp
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+        </div> 
+    </div> 
+
+    <script th:src="@{/assets/vendors/js/vendor.bundle.base.js}"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    
+    <script th:inline="none">
+        $(document).ready(function() {
+            $('#tablaRecuperar').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros",
+                    "search": "Buscar:",
+                    "info": "Página _PAGE_ de _PAGES_",
+                    "paginate": { "next": "Siguiente", "previous": "Anterior" }
+                },
+                "order": [[ 3, "desc" ]],
+                "pageLength": 10,
+                // Layout exacto: l(mostrar) izquierda, f(buscar) derecha
+                "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+        });
+    </script>
+</body>
+</html>
